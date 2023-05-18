@@ -1,0 +1,45 @@
+body {
+  box-sizing: border-box;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.container,
+.header,
+.sketchpad {
+  display: flex;
+  flex-direction: column;
+}
+
+.container,
+.header {
+  align-items: center;
+}
+
+.heading,
+button {
+  margin: 10px 0;
+}
+
+.heading {
+  text-align: center;
+  font-size: 36px;
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+.sketchpad {
+  margin: 20px 0;
+  border: 2px solid black;
+}
+
+.row {
+  display: flex;
+  border-bottom: 1px solid black;
+}
+
+.box {
+  border-right: 1px solid black;
+}
+
+@media (max-width: 500px) {
+}
