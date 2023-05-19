@@ -19,11 +19,6 @@ body {
   align-items: center;
 }
 
-.heading,
-button {
-  margin: 10px 0;
-}
-
 .heading {
   font-size: 36px;
   font-weight: bold;
@@ -31,7 +26,17 @@ button {
 }
 
 .heading,
-.header {
+button {
+  margin: 10px 0;
+}
+
+.header > * {
+  margin-top: 10px;
+}
+
+.heading,
+.header,
+.footer {
   text-align: center;
 }
 
@@ -48,6 +53,18 @@ button {
 .row,
 .box {
   border-right: 1px solid black;
+}
+
+.faq {
+  margin: 24px 0;
+}
+
+.instructions {
+  text-align: left !important;
+}
+
+.footer {
+  margin: 16px 0;
 }
 
 @media (max-width: 500px) {
