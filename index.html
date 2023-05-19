@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Etch A Sketch</title>
     <link rel="stylesheet" href="style.css" />
-    <link rel="stylesheet" href="./assets/coloris/coloris.min.css" />
-    <script src="./assets/coloris/coloris.min.js" defer></script>
+    <link rel="stylesheet" href="assets/coloris/coloris.min.css" />
+    <script src="assets/coloris/coloris.min.js" defer></script>
+    <script src="assets/html2canvas.min.js" defer></script>
     <script src="scripts.js" defer></script>
-    <script src="./assets/html2canvas.min.js" defer></script>
   </head>
   <body>
     <div class="container">
@@ -21,20 +21,21 @@
             <button type="submit">Set Grid Size</button>
           </form>
         </div>
-
         <div>
-          <label>Box colour:&nbsp;</label>
+          <label for="toggleRandomColour">Random colour mode:</label
+          ><input type="checkbox" id="toggleRandomColour" />
+        </div>
+        <div id="nonRandomModeContainer">
+          <label>Set colour:</label>
           <input type="text" id="colourPicker" data-coloris />
-          &nbsp;
+          &nbsp;|
           <label for="multiColourSwitch">Multi-colour:</label
           ><input id="multiColourSwitch" type="checkbox" />
         </div>
         <div>
           <label for="resetGrid">Press R or click&nbsp;</label
           ><button id="resetGrid">RESET</button
-          ><label for="resetGrid"> to reset&nbsp;|</label>
-          <label for="toggleGrid">Show Grid:</label
-          ><input type="checkbox" id="toggleGrid" />
+          ><label for="resetGrid"> to reset sketch</label>
         </div>
       </div>
       <div class="sketchpad"></div>
@@ -52,15 +53,17 @@
       </div>
       <div class="footer">
         <div>
+          <label for="toggleGrid">Show Grid:</label
+          ><input type="checkbox" id="toggleGrid" />
+        </div>
+        <div>
           <button id="exportAsImage">Export Your Sketch As Image</button>
         </div>
-        <br />
         <div>
           <label for="ctrlOnlySwitch"
             >Draw only on when Control key is held down:</label
           ><input id="ctrlOnlySwitch" type="checkbox" />
         </div>
-        <br />
         View this website on desktop/laptop for the best experience.
       </div>
     </div>

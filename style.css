@@ -43,11 +43,11 @@ body {
 
 .row {
   display: flex;
-  border-bottom: 1px solid black;
+  border-bottom: 1px dotted black;
 }
 
 .box {
-  border-right: 1px solid black;
+  border-right: 1px dotted black;
 }
 
 .no-border {
@@ -63,12 +63,12 @@ body {
   margin: 16px 0;
 }
 
+.footer > * {
+  margin-bottom: 16px;
+}
+
 @media (max-width: 500px) {
   .heading {
     font-size: 32px;
   }
-
-  /* .container {
-    padding: 0 25px; MAY HAVE TO DETECT THIS ON MOBILE
-  } */
 }
