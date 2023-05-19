@@ -4,7 +4,7 @@ body {
 }
 
 .container {
-  margin: 48px;
+  margin: 16px;
 }
 
 .container,
@@ -23,15 +23,11 @@ body {
   font-size: 36px;
   font-weight: bold;
   text-decoration: underline;
-}
-
-.heading,
-button {
-  margin: 10px 0;
+  margin-top: 24px;
 }
 
 .header > * {
-  margin-top: 10px;
+  margin-top: 16px;
 }
 
 .heading,
@@ -50,17 +46,17 @@ button {
   border-bottom: 1px solid black;
 }
 
-.row,
 .box {
   border-right: 1px solid black;
 }
 
-.faq {
-  margin: 24px 0;
+.no-border {
+  border: none;
 }
 
-.instructions {
+.faq {
   text-align: left !important;
+  margin-top: 24px 0;
 }
 
 .footer {
@@ -71,4 +67,8 @@ button {
   .heading {
     font-size: 32px;
   }
+
+  /* .container {
+    padding: 0 25px; MAY HAVE TO DETECT THIS ON MOBILE
+  } */
 }
