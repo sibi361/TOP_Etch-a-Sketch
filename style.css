@@ -3,6 +3,10 @@ body {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
+.container {
+  margin: 48px;
+}
+
 .container,
 .header,
 .sketchpad {
@@ -21,10 +25,14 @@ button {
 }
 
 .heading {
-  text-align: center;
   font-size: 36px;
   font-weight: bold;
   text-decoration: underline;
+}
+
+.heading,
+.header {
+  text-align: center;
 }
 
 .sketchpad {
@@ -37,9 +45,13 @@ button {
   border-bottom: 1px solid black;
 }
 
+.row,
 .box {
   border-right: 1px solid black;
 }
 
 @media (max-width: 500px) {
+  .heading {
+    font-size: 32px;
+  }
 }
