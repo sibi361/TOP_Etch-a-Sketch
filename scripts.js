@@ -16,14 +16,13 @@ const sizeChangeForm = document.querySelector("#sizeChangeForm");
 const sizeInput = document.querySelector("#inputSize");
 const gridToggle = document.querySelector("#toggleGrid");
 const randomColourToggle = document.querySelector("#toggleRandomColour");
-const nonRandomModeContainer = document.querySelector(
-  "#nonRandomModeContainer"
-);
-const colourPicker = document.querySelector("#colourPicker");
+const nonRandomMode = document.querySelector("#nonRandomModeContainer");
+const colourPickerInput = document.querySelector("#colourPicker");
 const multiColorToggle = document.querySelector("#multiColourSwitch");
 const resetButton = document.querySelector("#resetGrid");
-const ctrlCheckbox = document.querySelector("#ctrlOnlySwitch");
+const ctrlToggle = document.querySelector("#ctrlOnlySwitch");
 const exportAsImageButton = document.querySelector("#exportAsImage");
+const clearStorageButton = document.querySelector("#clearStorage");
 
 function makeGrid(size) {
   Array.from(sketchPad.children).forEach((element) => element.remove());
@@ -139,12 +138,6 @@ function isTrue(value) {
   return value === "true";
 }
 
-function readLs(key) {
-  const localStorageTemp = localStorage.getItem(key);
-  if (localStorageTemp !== null) return localStorageTemp;
-  else return false;
-}
-
 function screenshot(element) {
   html2canvas(element).then((canvas) => {
     const sketchFileName = `Etch-A-Sketch_${getCurrentTimestamp()}.png`;
@@ -153,6 +146,28 @@ function screenshot(element) {
 }
 
 exportAsImageButton.addEventListener("click", () => screenshot(sketchPad));
+
+// localStorage wrappers
+function readLs(key) {
+  const localStorageTemp = localStorage.getItem(key);
+  if (localStorageTemp !== null) return localStorageTemp;
+  else return false;
+}
+
+function writeLs(key, value) {
+  localStorage.setItem(key, value);
+}
+
+function clearLs() {
+  localStorage.clear();
+}
+// Reset settings to default
+function resetAllSettings() {
+  clearLs();
+  window.location.reload();
+}
+
+clearStorageButton.addEventListener("click", resetAllSettings);
 
 // reset the grid: set all boxes to white
 function resetGrid() {
@@ -196,7 +211,7 @@ sizeChangeForm.addEventListener("submit", (event) => {
   else if (sizeUser > MAX_GRID_SIZE)
     sizeError(`Please enter a smaller size, maximum is ${MAX_GRID_SIZE}.`);
   else {
-    localStorage.setItem("sizeUser", sizeUser);
+    writeLs("sizeUser", sizeUser);
     makeGrid(optimizeSize(sizeUser));
   }
 });
@@ -208,7 +223,7 @@ gridToggle.checked = showGrid;
 // listen for grid toggle
 gridToggle.addEventListener("change", () => {
   showGrid = gridToggle.checked;
-  localStorage.setItem("showGrid", showGrid);
+  writeLs("showGrid", showGrid);
   if (showGrid) setGrid();
   else hideGrid();
 });
@@ -217,11 +232,11 @@ gridToggle.addEventListener("change", () => {
 let ctrlPressListen = readLs("ctrlOnlySwitch")
   ? isTrue(readLs("ctrlOnlySwitch"))
   : DEFAULT_CTRL_PRESS_LISTEN;
-ctrlCheckbox.checked = ctrlPressListen;
+ctrlToggle.checked = ctrlPressListen;
 
-ctrlCheckbox.addEventListener("change", () => {
-  localStorage.setItem("ctrlOnlySwitch", ctrlCheckbox.checked);
-  if (ctrlCheckbox.checked) ctrlPressListen = true;
+ctrlToggle.addEventListener("change", () => {
+  writeLs("ctrlOnlySwitch", ctrlToggle.checked);
+  if (ctrlToggle.checked) ctrlPressListen = true;
   else ctrlPressListen = false;
 });
 
@@ -241,7 +256,7 @@ sketchPad.addEventListener("mouseleave", () => {
 let boxColourHover = readLs("boxColor")
   ? readLs("boxColor")
   : DEFAULT_BOX_COLOUR_ON_HOVER;
-colourPicker.value = boxColourHover;
+colourPickerInput.value = boxColourHover;
 
 // random box colour mode
 let randomColourMode = readLs("randomColor")
@@ -249,16 +264,17 @@ let randomColourMode = readLs("randomColor")
   : DEFAULT_RANDOM_COLOUR_MODE;
 randomColourToggle.checked = randomColourMode;
 
-if (randomColourMode) nonRandomModeContainer.style = "display:none;";
-else nonRandomModeContainer.style = "";
+// Hide colour picker if random colour mode is enabled
+if (randomColourMode) nonRandomMode.style = "display:none;";
+else nonRandomMode.style = "";
 
 randomColourToggle.addEventListener("change", () => {
-  localStorage.setItem("randomColor", randomColourToggle.checked);
+  writeLs("randomColor", randomColourToggle.checked);
   if (randomColourToggle.checked) randomColourMode = true;
   else randomColourMode = false;
 
-  if (randomColourMode) nonRandomModeContainer.style = "display:none;";
-  else nonRandomModeContainer.style = "";
+  if (randomColourMode) nonRandomMode.style = "display:none;";
+  else nonRandomMode.style = "";
 });
 
 // colour picker stuff
@@ -268,7 +284,7 @@ let multiColorEnabled = readLs("multiColor")
 multiColorToggle.checked = multiColorEnabled;
 
 multiColorToggle.addEventListener("click", () => {
-  localStorage.setItem("multiColor", multiColorToggle.checked);
+  writeLs("multiColor", multiColorToggle.checked);
   resetGrid();
 });
 
@@ -283,8 +299,8 @@ Coloris({
     "#00b4d880",
   ],
   onChange: (colour) => {
-    localStorage.setItem("boxColor", colour);
-    localStorage.setItem("multiColor", multiColorToggle.checked);
+    writeLs("boxColor", colour);
+    writeLs("multiColor", multiColorToggle.checked);
     multiColorEnabled = multiColorToggle.checked;
     if (!multiColorEnabled) resetGrid();
     boxColourHover = colour;
