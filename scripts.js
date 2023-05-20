@@ -1,5 +1,4 @@
 const DEFAULT_GRID_SIZE = 32;
-const DEFAULT_MULTI_COLOUR = false;
 const DEFAULT_CTRL_PRESS_LISTEN = false;
 const DEFAULT_GRID = false;
 const DEFAULT_RANDOM_COLOUR_MODE = true; // change will break randomColourMode init
@@ -7,10 +6,11 @@ const DEFAULT_BOX_COLOUR_ON_HOVER = "#00b4d8";
 const SUCCESSIVE_COLOUR_DARKEN_FACTOR = 0.9;
 const MAX_GRID_SIZE = 100;
 const MAX_PX_PER_BOX = 30; // in px
-const SAFETY_MARGIN = 30;
+const SAFETY_MARGIN = 50;
 const MOBILE_SIZE_REDUCTION_FACTOR = 0.75;
 const MOBILE_SIZE_REDUCTION_THRESHOLD = 32;
 
+const container = document.querySelector(".container");
 const sketchPad = document.querySelector(".sketchpad");
 const sizeChangeForm = document.querySelector("#sizeChangeForm");
 const sizeInput = document.querySelector("#inputSize");
@@ -18,17 +18,16 @@ const gridToggle = document.querySelector("#toggleGrid");
 const randomColourToggle = document.querySelector("#toggleRandomColour");
 const nonRandomMode = document.querySelector("#nonRandomModeContainer");
 const colourPickerInput = document.querySelector("#colourPicker");
-const multiColorToggle = document.querySelector("#multiColourSwitch");
 const resetButton = document.querySelector("#resetGrid");
-const ctrlToggle = document.querySelector("#ctrlOnlySwitch");
 const exportAsImageButton = document.querySelector("#exportAsImage");
 const clearStorageButton = document.querySelector("#clearStorage");
+const screenshotContainer = document.querySelector("#screenshotImageContainer");
 
+let dimension;
 function makeGrid(size) {
   Array.from(sketchPad.children).forEach((element) => element.remove());
 
   // check if device is desktop or mobile and set box size accordingly
-  let dimension;
   if (deviceIsMobile) dimension = window.innerWidth - SAFETY_MARGIN;
   else dimension = window.innerHeight - SAFETY_MARGIN;
   let sizePerBox = dimension / size;
@@ -48,15 +47,10 @@ function makeGrid(size) {
       if (!showGrid) box.classList.add("no-border");
 
       box.addEventListener("mouseover", () => {
-        if (ctrlPressListen) {
-          if (ctrlPressed)
-            box.style.background = getColour(box.style.background);
-        } else {
-          // normal operation mode: draw only if mouse within
-          // easter egg: stop drawing if Ctrl pressed
-          if (sketchPadInFocus && sketchPadIsClicked && !ctrlPressed)
-            box.style.background = getColour(box.style.background);
-        }
+        // draw only if mouse is being left clicked
+        // OR the Control key is being pressed
+        if ((sketchPadInFocus && sketchPadIsClicked) || ctrlIsPressed)
+          box.style.background = getColour(box.style.background);
       });
 
       box.addEventListener("click", () => {
@@ -110,6 +104,14 @@ function optimizeSize(size) {
   return size;
 }
 
+function getRandom(max) {
+  return Math.floor(Math.random() * max);
+}
+
+function isTrue(value) {
+  return value === "true";
+}
+
 // save data to file
 function saveFile(fileName, fileData) {
   const _ = document.createElement("a");
@@ -121,8 +123,8 @@ function saveFile(fileName, fileData) {
   _.remove();
 }
 
-function getCurrentTimestamp() {
-  const date = new Date();
+// Formats current time if Date() object not provided
+function getTimestamp(date = new Date()) {
   return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}_${date
     .toTimeString()
     .split(" ")[0]
@@ -130,18 +132,41 @@ function getCurrentTimestamp() {
     .replace(/:/g, "-")}`;
 }
 
-function getRandom(max) {
-  return Math.floor(Math.random() * max);
-}
-
-function isTrue(value) {
-  return value === "true";
+// https://stackoverflow.com/a/74003656
+function isIOS() {
+  let platform = navigator?.userAgent || navigator?.platform || "unknown";
+  return /iPhone|iPod|iPad/.test(platform);
 }
 
 function screenshot(element) {
   html2canvas(element).then((canvas) => {
-    const sketchFileName = `Etch-A-Sketch_${getCurrentTimestamp()}.png`;
-    saveFile(sketchFileName, canvas.toDataURL());
+    const canvas_data = canvas.toDataURL();
+    const tempMessage = document.createElement("p");
+    screenshotContainer.innerHTML = "";
+
+    if (!isIOS()) {
+      const sketchFileName = `Etch-A-Sketch_${getTimestamp()}.png`;
+      saveFile(sketchFileName, canvas.toDataURL());
+      tempMessage.textContent =
+        'Sketch successfully exported to your default "Downloads" folder.';
+      screenshotContainer.append(tempMessage);
+    } else {
+      try {
+        document.querySelector("#tempScreenshotImage").remove();
+      } catch {}
+
+      // saveFile() doesn't work on IOS so user has to manually click
+      // and hold the generated image to save
+      const _ = document.createElement("img");
+      _.id = "tempScreenshotImage";
+      _.src = canvas_data;
+      _.width = dimension;
+      _.style.border = "2px solid blue";
+
+      tempMessage.textContent =
+        "Press and hold the following image to save it:";
+      screenshotContainer.append(tempMessage, _);
+    }
   });
 }
 
@@ -189,7 +214,20 @@ sketchPad.addEventListener("mouseleave", () => (sketchPadInFocus = false));
 
 let sketchPadIsClicked = false;
 sketchPad.addEventListener("mousedown", () => (sketchPadIsClicked = true));
-sketchPad.addEventListener("mouseup", () => (sketchPadIsClicked = false));
+// If the below event listener were attached to sketchPad instead of the container,
+// releasing the mouse left-click AFTER dragging the mouse out of the sketchPad
+// would cause sketchPadIsClicked to continue to stay true. This would lead to
+// drawing just by hovering, when the mouse re-enters the sketchPad.
+container.addEventListener("mouseup", () => (sketchPadIsClicked = false));
+
+// listen for control key press
+let ctrlIsPressed = false;
+document.addEventListener("keydown", (event) => {
+  if (event.key == "Control") ctrlIsPressed = true;
+});
+document.addEventListener("keyup", (event) => {
+  if (event.key == "Control") ctrlIsPressed = false;
+});
 
 // mobile device detection
 let deviceIsMobile = false;
@@ -228,30 +266,6 @@ gridToggle.addEventListener("change", () => {
   else hideGrid();
 });
 
-// listen for control key checkbox change
-let ctrlPressListen = readLs("ctrlOnlySwitch")
-  ? isTrue(readLs("ctrlOnlySwitch"))
-  : DEFAULT_CTRL_PRESS_LISTEN;
-ctrlToggle.checked = ctrlPressListen;
-
-ctrlToggle.addEventListener("change", () => {
-  writeLs("ctrlOnlySwitch", ctrlToggle.checked);
-  if (ctrlToggle.checked) ctrlPressListen = true;
-  else ctrlPressListen = false;
-});
-
-// listen for control key press
-let ctrlPressed = false;
-document.addEventListener("keydown", (event) => {
-  if (event.key == "Control") ctrlPressed = true;
-});
-document.addEventListener("keyup", (event) => {
-  if (event.key == "Control") ctrlPressed = false;
-});
-sketchPad.addEventListener("mouseleave", () => {
-  ctrlPressed = false;
-});
-
 // box colour on hover
 let boxColourHover = readLs("boxColor")
   ? readLs("boxColor")
@@ -278,16 +292,6 @@ randomColourToggle.addEventListener("change", () => {
 });
 
 // colour picker stuff
-let multiColorEnabled = readLs("multiColor")
-  ? isTrue(readLs("multiColor"))
-  : DEFAULT_MULTI_COLOUR;
-multiColorToggle.checked = multiColorEnabled;
-
-multiColorToggle.addEventListener("click", () => {
-  writeLs("multiColor", multiColorToggle.checked);
-  resetGrid();
-});
-
 Coloris({
   alpha: false,
   swatches: [
@@ -300,9 +304,6 @@ Coloris({
   ],
   onChange: (colour) => {
     writeLs("boxColor", colour);
-    writeLs("multiColor", multiColorToggle.checked);
-    multiColorEnabled = multiColorToggle.checked;
-    if (!multiColorEnabled) resetGrid();
     boxColourHover = colour;
   },
 });
