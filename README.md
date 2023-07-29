@@ -6,6 +6,6 @@ DEMO: https://sibi361.github.io/TOP_Etch-a-Sketch/
 
 ### TODO
 
-- [ ] Add undo functionality (save last few modified boxes in an array)
-- [ ] Enable drawing on mobile using touch input
-- [x] Fix: sketch export doesn't work on mobile
+-   [ ] Add undo functionality (save last few modified boxes in an array)
+-   [ ] Enable drawing on mobile using touch input
+-   [x] Fix: sketch export doesn't work on mobile
